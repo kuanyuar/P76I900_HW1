@@ -12,7 +12,6 @@ import sys
 import os
 import xml.etree.ElementTree as XET
 import json
-from pprint import pprint   # 載入pprint套件，會按照英文字母順序以可觀性較高的方式輸出
 from nltk.tokenize import word_tokenize, sent_tokenize
 
 class MyWindow(QtWidgets.QWidget):
@@ -60,8 +59,11 @@ class MyWindow(QtWidgets.QWidget):
         folder_path = QFileDialog.getExistingDirectory(self,"Open folder","./")
         key=str(self.textEdit.toPlainText())
         files= os.listdir(folder_path) #得到資料夾下的所有檔名稱
-        article=[]
-        for index,file in files: #遍歷資料夾
+        #article=[]
+        #index=0
+        
+        for file in files: #遍歷資料夾
+            str1=""
             if not os.path.isdir(file): #判斷是否是資料夾,不是資料夾才打開
                 #self.textBrowser.append("File name:"+str(file))
                 file_path=folder_path+"/"+file
@@ -73,10 +75,12 @@ class MyWindow(QtWidgets.QWidget):
                     root = tree.getroot()   # 取得XML表格
                     for ArticleTitle in root.iter('ArticleTitle'):
                         #self.textBrowser.append(ArticleTitle.text)
-                        article[index]=article[index]+ArticleTitle.text
+                        str1=str1+ArticleTitle.text
+                        #article[index]=article[index]+ArticleTitle.text
                     for AbstractText in root.iter('AbstractText'):
                         #self.textBrowser.append(AbstractText.text)
-                        article[index]=article[index]+AbstractText.text
+                        str1=str1+AbstractText.text
+                        #article[index]=article[index]+AbstractText.text
                 elif nm[1]==".json" :
                     #self.textBrowser.append("您輸入json檔")
                     # 將 json 檔案讀取成字串,以"r"讀寫模式、編碼方式為utf-8的方式開啟檔案
@@ -86,17 +90,34 @@ class MyWindow(QtWidgets.QWidget):
                     # 直接列印 data
                     for i in range(len(data)):
                         #self.textBrowser.append(data[i]['tweet_text'])
-                        article[index]=article[index]+data[i]['tweet_text']
-                sentences = sent_tokenize(article[index])
+                        str1=str1+data[i]['tweet_text']
+                        #article[index]=article[index]+data[i]['tweet_text']
+                else:
+                     self.textBrowser.append(file_path+"檔案類型不符，此檔案不解析\n")
+                     continue
+                '''sentences = sent_tokenize(article[index])
                 words=word_tokenize(article[index])
+                characters=str(len(article[index]))
                 self.textBrowser.append(file_path)
                 self.textBrowser.append('Number of sentences by nltk: ' + str(len(sentences)))
                 self.textBrowser.append('Number of words by nltk: ' + str(len(words)))
+                self.textBrowser.append('Number of characters: ' + characters)
                 for k in range(len(sentences)):
                     if key in sentences[k]:
                         self.textBrowser.append(sentences[k])
+                index=index+1'''
 
-                
+                sentences = sent_tokenize(str1)
+                words=word_tokenize(str1)
+                characters=str(len(str1))
+
+                self.textBrowser.append(file_path)    
+                self.textBrowser.append('Number of sentences by nltk: ' + str(len(sentences)))
+                self.textBrowser.append('Number of words by nltk: ' + str(len(words)))
+                self.textBrowser.append('Number of characters: ' + characters)
+                for i in range(len(sentences)):
+                    if key in sentences[i]:
+                        self.textBrowser.append(sentences[i]+"\n")
         
        
         

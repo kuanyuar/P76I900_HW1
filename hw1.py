@@ -2,11 +2,10 @@ import os
 import xml.etree.ElementTree as ET
 import json
 import nltk
+
 nltk.download('punkt')
 from nltk.tokenize import word_tokenize, sent_tokenize
-from pathlib import Path
-from os import listdir
-from os.path import isfile, join
+
 
 path = str(input("請輸入路徑:"))
 print(path)
@@ -60,16 +59,19 @@ elif nm[1]==".json":
         #f.write(data[i]['tweet_text']+"\n")
     #syn = str(str1).synsets(txt)
     #print(syn[0].examples())
+
 #print(str1)
 sentences = sent_tokenize(str1)
 words=word_tokenize(str1)
+characters=str(len(str1))
     #print(sentences)
 print(path)    
 print('Number of sentences by nltk: ' + str(len(sentences)))
 print('Number of words by nltk: ' + str(len(words)))
+print('Number of characters: ' + characters)
 for i in range(len(sentences)):
     if txt in sentences[i]:
-        print(sentences[i])
+        print(sentences[i]+"\n")
 '''with open(newfile) as file:
     for line in file:
         print(line.rstrip())'''
