@@ -12,6 +12,7 @@ import sys
 import os
 import xml.etree.ElementTree as XET
 import json
+import re
 from nltk.tokenize import word_tokenize, sent_tokenize
 
 class MyWindow(QtWidgets.QWidget):
@@ -73,9 +74,9 @@ class MyWindow(QtWidgets.QWidget):
                 if nm[1]==".xml" :
                     tree = XET.parse(file_path)  # 以XET套件載入XML檔案
                     root = tree.getroot()   # 取得XML表格
-                    for ArticleTitle in root.iter('ArticleTitle'):
+                    #for ArticleTitle in root.iter('ArticleTitle'):
                         #self.textBrowser.append(ArticleTitle.text)
-                        str1=str1+ArticleTitle.text
+                        #str1=str1+ArticleTitle.text
                         #article[index]=article[index]+ArticleTitle.text
                     for AbstractText in root.iter('AbstractText'):
                         #self.textBrowser.append(AbstractText.text)
@@ -107,14 +108,19 @@ class MyWindow(QtWidgets.QWidget):
                         self.textBrowser.append(sentences[k])
                 index=index+1'''
 
+                mark_out = re.sub(r'[^\w\s]','',str1.replace('/', ' '))
+
                 sentences = sent_tokenize(str1)
-                words=word_tokenize(str1)
-                characters=str(len(str1))
+                words=word_tokenize(mark_out)
+                characters=str(len(mark_out))
 
                 self.textBrowser.append(file_path)    
                 self.textBrowser.append('Number of sentences by nltk: ' + str(len(sentences)))
                 self.textBrowser.append('Number of words by nltk: ' + str(len(words)))
                 self.textBrowser.append('Number of characters: ' + characters)
+                
+                for i in range(len(words)):
+                    self.textBrowser.append(words[i]+"\n")
                 for i in range(len(sentences)):
                     if key in sentences[i]:
                         self.textBrowser.append(sentences[i]+"\n")

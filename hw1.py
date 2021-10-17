@@ -2,7 +2,7 @@ import os
 import xml.etree.ElementTree as ET
 import json
 import nltk
-
+import re
 nltk.download('punkt')
 from nltk.tokenize import word_tokenize, sent_tokenize
 
@@ -36,17 +36,12 @@ if nm[1]==".xml":
     root = tree.getroot()
     #print(root.tag)
     ## 搜尋所有子節點
-    for ArticleTitle in root.iter('ArticleTitle'):
-        #syn = str(ArticleTitle.text).synsets(txt)
-        #print(syn[0].examples())
-        #print(ArticleTitle.text)
-        str1=str1+ArticleTitle.text
     for AbstractText in root.iter('AbstractText'):
         #syn = str(AbstractText.text).synsets(txt)
         #print(syn[0].examples())
         #print(AbstractText.text)
         str1=str1+AbstractText.text
-elif nm[1]==".json":
+'''elif nm[1]==".json":
     #print("您輸入json")
     # 將 json 檔案讀取成字串
     json_data = open(path,"r",encoding="utf-8").read()
@@ -55,22 +50,28 @@ elif nm[1]==".json":
     # 直接列印 data
     for i in range(len(data)):
         #print(data[i]['tweet_text'])
-        str1=str1+data[i]['tweet_text']
+        str1=str1+data[i]['tweet_text']'''
         #f.write(data[i]['tweet_text']+"\n")
     #syn = str(str1).synsets(txt)
     #print(syn[0].examples())
-
 #print(str1)
+
+    
+mark_out = re.sub(r'[^\w\s]','',str1.replace('/', ' '))
+
 sentences = sent_tokenize(str1)
-words=word_tokenize(str1)
-characters=str(len(str1))
+words=word_tokenize(mark_out)
+characters=str(len(mark_out))
     #print(sentences)
 print(path)    
 print('Number of sentences by nltk: ' + str(len(sentences)))
 print('Number of words by nltk: ' + str(len(words)))
 print('Number of characters: ' + characters)
+'''for i in range(len(words)):
+    print(words[i]+"\n")'''
+
 for i in range(len(sentences)):
-    if txt in sentences[i]:
+   if txt in sentences[i]:
         print(sentences[i]+"\n")
 '''with open(newfile) as file:
     for line in file:
