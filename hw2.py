@@ -16,8 +16,8 @@ from nltk.stem.porter import PorterStemmer
 #import random
 
 #folder_path = QFileDialog.getExistingDirectory(self,"Open folder","./")
-#folder_path="./hw2_data"
-folder_path="./test"
+folder_path="./hw2_data"
+#folder_path="./test"
 #key=str(self.textEdit.toPlainText())
 files= os.listdir(folder_path) #得到資料夾下的所有檔名稱
 #article=[]
@@ -25,7 +25,7 @@ files= os.listdir(folder_path) #得到資料夾下的所有檔名稱
 #str1=""
 top = int(input("請輸入欲顯示詞頻Top數:"))
 key = str(input("請輸入欲查詢關鍵字:"))
-db = np.empty( (10,), dtype=[('title',object),('wordcounts',object)] )
+db = np.empty( (10000,), dtype=[('title',object),('wordcounts',object)] )
 cnt=0
 counts=0
 #總統計文章字頻
@@ -38,6 +38,7 @@ nostopword_count={}
 porter_stemmer = PorterStemmer()
 porter_words=[]
 porter_counts={}
+df_word=[]
 df={}
 key_path=[]
 
@@ -96,17 +97,20 @@ for file in files: #遍歷資料夾
                                 elif not porter_stemmer.stem(w) in porter_words :
                                     porter_words.append(porter_stemmer.stem(w))
                                     porter_counts[porter_stemmer.stem(w)] = 1
-                                 #if n==0:
-                                 # df[porter_stemmer.stem(w)]=1
-                                 #elif df[porter_stemmer.stem(w)]=='':
-                                 #df[porter_stemmer.stem(w)]=1
-                                 #else:
-                                 #df[porter_stemmer.stem(w)] += 1
                                 else:
                                     #print ("Actual: %s  Stem: %s"  % (str(label[i]),porter_stemmer.stem(str(label[i]))))
                                     porter_counts[porter_stemmer.stem(w)] += 1
                             if key in word:
                                 key_path.append([str(file_path),str(mycsv[n]['title'])])
+                            for w in word:
+                                if w in stopword: continue
+                                elif not porter_stemmer.stem(w) in df_word :
+                                    df_word.append(porter_stemmer.stem(w))
+                                    df[porter_stemmer.stem(w)] = 1
+                                else:
+                                    #print ("Actual: %s  Stem: %s"  % (str(label[i]),porter_stemmer.stem(str(label[i]))))
+                                    df[porter_stemmer.stem(w)] += 1
+                                
                             counter_list = sorted(wordcount.items(), key=lambda x: x[1], reverse=True)
                             #print(str(n)+':'+str(mycsv[n]['title']))
                             db['title'][cnt]=str(mycsv[n]['title'])
@@ -172,8 +176,8 @@ print(porter_counter_list[:top])
 
 #label = list(map(lambda x: x[0], porter_counter_list[:]))
 #value = list(map(lambda y: y[1], porter_counter_list[:]))
-label = list(map(lambda x: x[0], porter_counter_list[:]))
-value = list(map(lambda y: y[1], porter_counter_list[:]))
+label = list(map(lambda x: x[0], porter_counter_list[:top]))
+value = list(map(lambda y: y[1], porter_counter_list[:top]))
 plt.subplot(2, 2, 3)                 
 #plt.bar(range(len(value)), value, tick_label=label)
 plt.plot(label,value)
@@ -187,12 +191,15 @@ plt.show()
 tf=[]
 idf=[]
 tf_idf={}
+df_counter_list = sorted(df.items(), key=lambda x: x[1], reverse=True)  
+print("df Top"+str(top)+":")
+print(df_counter_list[:top])
 for i in range(len(porter_words)):
     word_tf=int(porter_counts[porter_words[i]])/counts
     tf.append(int(word_tf))
     #print(porter_words[i]+":"+str(sum([1 for x in range(len(db))for y in range(len(db['wordcounts'][x])) if porter_words[i] in porter_stemmer.stem(str(db['wordcounts'][x][y][0]))])+1))
-    word_idf=math.log10(10000/sum([1 for x in range(len(db))for y in range(len(db['wordcounts'][x])) if porter_words[i] in porter_stemmer.stem(str(db['wordcounts'][x][y][0]))])+1)
-    #word_idf=math.log10(10000/df[porter_words[i]]+1)
+    #word_idf=math.log10(10000/sum([1 for x in range(len(db))for y in range(len(db['wordcounts'][x])) if porter_words[i] in porter_stemmer.stem(str(db['wordcounts'][x][y][0]))])+1)
+    word_idf=math.log10(10000/df[porter_words[i]]+1)
     idf.append(int(word_idf))
     tf_idf[porter_words[i]]=word_tf*word_idf
 tf_idf_counter_list = sorted(tf_idf.items(), key=lambda x: x[1], reverse=True)  
