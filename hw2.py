@@ -25,6 +25,7 @@ files= os.listdir(folder_path) #得到資料夾下的所有檔名稱
 #str1=""
 db = np.empty( (10,), dtype=[('title',object),('wordcounts',object)] )
 cnt=0
+counts=0
 #總統計文章字頻
 words=[]
 wordcounts={}
@@ -51,7 +52,6 @@ for file in files: #遍歷資料夾
                     print(file_path + '不是檔案')
                     sys.exit(1)
                 else:
-                #self.textBrowser.append(nm[1])
                     if nm[1]==".csv":
                         Reader = csv.DictReader(file)
                         mycsv = list(Reader)
@@ -67,6 +67,7 @@ for file in files: #遍歷資料夾
                             wordcount={}
                             word=[]
                             for w in words:
+                                counts+=1
                                 if not w in word :
                                     word.append(w)
                                 if not w in wordcount:
@@ -121,7 +122,7 @@ print(tol_counter_list[:20])
 
 label = list(map(lambda x: x[0], tol_counter_list[:]))
 value = list(map(lambda y: y[1], tol_counter_list[:]))
-counts=sum(value)
+#counts=sum(value)
 print('counts:'+str(counts))#總字數
 
 plt.subplot(2, 2, 1)                 # plt.subplot(列數, 行數, 圖形編號)設定第一張圖位置
@@ -173,14 +174,14 @@ plt.show()
 tf=[]
 idf=[]
 tf_idf={}
-for i in range(len(label)):
-    word_tf=int(value[i])/counts
+for i in range(len(porter_words)):
+    word_tf=int(porter_counts[porter_words[i]])/counts
     tf.append(int(word_tf))
-    #print(label[i]+":"+str(sum([1 for x in range(len(db))for y in range(len(db['wordcounts'][x])) if label[i] in porter_stemmer.stem(str(db['wordcounts'][x][y][0]))])+1))
-    word_idf=math.log10(10000/sum([1 for x in range(len(db))for y in range(len(db['wordcounts'][x])) if label[i] in porter_stemmer.stem(str(db['wordcounts'][x][y][0]))])+1)
-    #word_idf=math.log10(10000/df[label[i]]+1)
+    #print(porter_words[i]+":"+str(sum([1 for x in range(len(db))for y in range(len(db['wordcounts'][x])) if porter_words[i] in porter_stemmer.stem(str(db['wordcounts'][x][y][0]))])+1))
+    word_idf=math.log10(10000/sum([1 for x in range(len(db))for y in range(len(db['wordcounts'][x])) if porter_words[i] in porter_stemmer.stem(str(db['wordcounts'][x][y][0]))])+1)
+    #word_idf=math.log10(10000/df[porter_words[i]]+1)
     idf.append(int(word_idf))
-    tf_idf[label[i]]=word_tf*word_idf
+    tf_idf[porter_words[i]]=word_tf*word_idf
 tf_idf_counter_list = sorted(tf_idf.items(), key=lambda x: x[1], reverse=True)  
 print(tf_idf_counter_list[0:20])
 '''label = list(map(lambda x: x[0], label[:20]))
