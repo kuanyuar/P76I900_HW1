@@ -23,6 +23,8 @@ files= os.listdir(folder_path) #得到資料夾下的所有檔名稱
 #article=[]
 #index=0
 #str1=""
+top = int(input("請輸入欲顯示詞頻Top數:"))
+key = str(input("請輸入欲查詢關鍵字:"))
 db = np.empty( (10,), dtype=[('title',object),('wordcounts',object)] )
 cnt=0
 counts=0
@@ -37,6 +39,7 @@ porter_stemmer = PorterStemmer()
 porter_words=[]
 porter_counts={}
 df={}
+key_path=[]
 
 #統計每篇文章字頻
 for file in files: #遍歷資料夾
@@ -63,10 +66,10 @@ for file in files: #遍歷資料夾
                             else:
                                 abstract=str(mycsv[n]['abstract'])
                             mark_out = re.sub(r'[^\w\s]','',abstract.replace('/', ' '))
-                            words=word_tokenize(mark_out.lower())#變小寫
+                            Awords=word_tokenize(mark_out.lower())#變小寫
                             wordcount={}
                             word=[]
-                            for w in words:
+                            for w in Awords:
                                 counts+=1
                                 if not w in word :
                                     word.append(w)
@@ -102,6 +105,8 @@ for file in files: #遍歷資料夾
                                 else:
                                     #print ("Actual: %s  Stem: %s"  % (str(label[i]),porter_stemmer.stem(str(label[i]))))
                                     porter_counts[porter_stemmer.stem(w)] += 1
+                            if key in word:
+                                key_path.append([str(file_path),str(mycsv[n]['title'])])
                             counter_list = sorted(wordcount.items(), key=lambda x: x[1], reverse=True)
                             #print(str(n)+':'+str(mycsv[n]['title']))
                             db['title'][cnt]=str(mycsv[n]['title'])
@@ -117,11 +122,15 @@ for file in files: #遍歷資料夾
 tol_counter_list = sorted(wordcounts.items(), key=lambda x: x[1], reverse=True)    
 #for i in 
 print('words:'+str(len(words)))#單詞數
-print(tol_counter_list[:20])
+print("總辭頻Top"+str(top)+":")
+print(tol_counter_list[:top])
+#print("總辭頻Top"+str(top)+":"+tol_counter_list[:top])
         #for i,j in counter_list[:50]:print i
 
-label = list(map(lambda x: x[0], tol_counter_list[:]))
-value = list(map(lambda y: y[1], tol_counter_list[:]))
+#label = list(map(lambda x: x[0], tol_counter_list[:]))
+#value = list(map(lambda y: y[1], tol_counter_list[:]))
+label = list(map(lambda x: x[0], tol_counter_list[:top]))
+value = list(map(lambda y: y[1], tol_counter_list[:top]))
 #counts=sum(value)
 print('counts:'+str(counts))#總字數
 
@@ -136,12 +145,14 @@ plt.show()
 
 nostopword_counter_list = sorted(nostopword_count.items(), key=lambda x: x[1], reverse=True) 
 #print(stopword)
+print("nostopword Top"+str(top)+":")
+print(nostopword_counter_list[:top])
 
-print(nostopword_counter_list[:20])
-
-label = list(map(lambda x: x[0], nostopword_counter_list[:]))
-value = list(map(lambda y: y[1], nostopword_counter_list[:]))
-print("nostopword:"+str(len(label)))
+#label = list(map(lambda x: x[0], nostopword_counter_list[:]))
+#value = list(map(lambda y: y[1], nostopword_counter_list[:]))
+label = list(map(lambda x: x[0], nostopword_counter_list[:top]))
+value = list(map(lambda y: y[1], nostopword_counter_list[:top]))
+print("nostopword:"+str(len(nostopwords)))
 plt.subplot(2, 2, 2)                
 plt.plot(label,value)
 plt.xticks(rotation=270)
@@ -155,12 +166,14 @@ plt.show()
 porter_counter_list = sorted(porter_counts.items(), key=lambda x: x[1], reverse=True)    
 
 print('porter_words:'+str(len(porter_words)))#單詞數
-print(porter_counter_list[:20])
+print("porter Top"+str(top)+":")
+print(porter_counter_list[:top])
 
 
+#label = list(map(lambda x: x[0], porter_counter_list[:]))
+#value = list(map(lambda y: y[1], porter_counter_list[:]))
 label = list(map(lambda x: x[0], porter_counter_list[:]))
 value = list(map(lambda y: y[1], porter_counter_list[:]))
-
 plt.subplot(2, 2, 3)                 
 #plt.bar(range(len(value)), value, tick_label=label)
 plt.plot(label,value)
@@ -183,7 +196,11 @@ for i in range(len(porter_words)):
     idf.append(int(word_idf))
     tf_idf[porter_words[i]]=word_tf*word_idf
 tf_idf_counter_list = sorted(tf_idf.items(), key=lambda x: x[1], reverse=True)  
-print(tf_idf_counter_list[0:20])
+print("tf_idTop"+str(top)+":")
+print(tf_idf_counter_list[0:top])
+print("關鍵字出現於以下文章中")
+print(key_path)
+print("關鍵字詞頻權重"+str(tf_idf[key]))
 '''label = list(map(lambda x: x[0], label[:20]))
 value = list(map(lambda y: y[1], tf_idf[:20]))
 plt.subplot(2, 2, 4) 
