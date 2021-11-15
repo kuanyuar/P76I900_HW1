@@ -27,16 +27,17 @@ counts=0
 #去除停用字統計文章字頻
 stopword = stopwords.words('english')
 STR_nostopwords=[]
+SimilarKey={}
 TOL_STR=[]
 # Settings
-seed = 6 #亂數種子
+#seed = 6 #亂數種子
 sg = 1 #演算法，預設為0，代表是CBOW，若設為1則是使用Skip-Gram
 window_size = 10 #周圍詞彙要看多少範圍
-vector_size = 30 #轉成向量的維度
-min_count = 3 #該詞最少出現幾次，才可以被當作是訓練資料
+vector_size = round(count/3) #轉成向量的維度，維度太小會無法有效表達詞與詞的關係，維度太大會使關係太稀疏而難以找出規則
+min_count = round(count/10) #該詞最少出現幾次，才可以被當作是訓練資料
 workers = 8 #訓練的並行數量
 epochs = 8 #訓練的迭代次數
-batch_words = 20 #每次給予多少詞彙量訓練
+batch_words = round(count/3) #每次給予多少詞彙量訓練
 
 
 
@@ -67,6 +68,9 @@ for file in files: #遍歷資料夾
                                 seq = difflib.SequenceMatcher(None,key,w)
                                 ratio=seq.ratio()
                                 if ratio>=0.75:
+                                    if w in SimilarKey: continue
+                                    else:
+                                        SimilarKey[w]=ratio
                                     w=key
                                 #print('ratio:'+str(ratio)) 
                                 STR_nostopwords.append(w)
@@ -84,11 +88,12 @@ model = word2vec.Word2Vec(
                                     epochs=epochs,
                                     window=window_size,
                                     sg=sg,
-                                    seed=seed,
+                                    #seed=seed,
                                     batch_words=batch_words
                              )  
 print('stopword:'+str(len(stopword)))
-#print(stopword)
+print('SimilarKey:')
+print(SimilarKey)
 model.save('word2vec.model')
 models = word2vec.Word2Vec.load('word2vec.model')
 #print(models.wv['endometriosis'].shape)

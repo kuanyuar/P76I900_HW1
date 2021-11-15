@@ -29,11 +29,11 @@ TOL_STR=[]
 #seed = 6 #亂數種子
 sg = 0 #演算法，預設為0，代表是CBOW，若設為1則是使用Skip-Gram
 window_size = 10 #周圍詞彙要看多少範圍
-vector_size = 30 #轉成向量的維度
-min_count = 3 #該詞最少出現幾次，才可以被當作是訓練資料
+vector_size = round(count/3) #轉成向量的維度，維度太小會無法有效表達詞與詞的關係，維度太大會使關係太稀疏而難以找出規則
+min_count = round(count/10) #該詞最少出現幾次，才可以被當作是訓練資料
 workers = 8 #訓練的並行數量
 epochs = 8 #訓練的迭代次數
-batch_words = 20 #每次給予多少詞彙量訓練
+batch_words = round(count/3) #每次給予多少詞彙量訓練
 
 
 
