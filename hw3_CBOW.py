@@ -13,7 +13,7 @@ from gensim.models import word2vec
 
 #folder_path = QFileDialog.getExistingDirectory(self,"Open folder","./")
 #folder_path="./hw2_data"
-folder_path="./constact"
+folder_path="./Endometriosis"
 #folder_path="./test"
 files= os.listdir(folder_path) #得到資料夾下的所有檔名稱
 
@@ -26,14 +26,21 @@ stopword = stopwords.words('english')
 STR_nostopwords=[]
 TOL_STR=[]
 # Settings
-#seed = 6 #亂數種子
+seed = 1 #亂數種子
 sg = 0 #演算法，預設為0，代表是CBOW，若設為1則是使用Skip-Gram
 window_size = 10 #周圍詞彙要看多少範圍
-vector_size = round(count/3) #轉成向量的維度，維度太小會無法有效表達詞與詞的關係，維度太大會使關係太稀疏而難以找出規則
-min_count = round(count/10) #該詞最少出現幾次，才可以被當作是訓練資料
-workers = 8 #訓練的並行數量
-epochs = 8 #訓練的迭代次數
-batch_words = round(count/3) #每次給予多少詞彙量訓練
+
+workers = 6 #訓練的並行數量
+epochs = 5 #訓練的迭代次數
+
+if count>1000:
+   vector_size =100
+   min_count = 10
+   batch_words =1000
+else:
+   vector_size = round(count/3) #轉成向量的維度，維度太小會無法有效表達詞與詞的關係，維度太大會使關係太稀疏而難以找出規則
+   min_count = round(count/10) #該詞最少出現幾次，才可以被當作是訓練資料
+   batch_words = round(count/3) #每次給予多少詞彙量訓練
 
 
 
@@ -81,7 +88,7 @@ model = word2vec.Word2Vec(
                                     epochs=epochs,
                                     window=window_size,
                                     sg=sg,
-                                    #seed=seed,
+                                    seed=seed,
                                     batch_words=batch_words
                                 )
 #print('stopword:'+str(len(stopword)))
