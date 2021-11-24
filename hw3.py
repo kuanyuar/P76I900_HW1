@@ -7,7 +7,6 @@ import csv
 
 nltk.download('stopwords')
 import matplotlib.pyplot as plt
-import difflib
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
@@ -24,35 +23,29 @@ top = int(input("請輸入欲顯示詞頻Top數:"))
 key = str(input("請輸入欲查詢關鍵字:"))
 count= int(input("請輸入欲讀取文章數:"))
 counts=0
+
 #去除停用字統計文章字頻
 stopword = stopwords.words('english')
 STR_nostopwords=[]
-SimilarKey={}
 TOL_STR=[]
 # Settings
-seed = 1 #亂數種子
-sg = 0 #演算法，預設為0，代表是CBOW，若設為1則是使用Skip-Gram
+seed = 6 #亂數種子
+sg = 1 #演算法，預設為0，代表是CBOW，若設為1則是使用Skip-Gram
 window_size = 10 #周圍詞彙要看多少範圍
+vector_size = 30 #轉成向量的維度
+min_count = 3 #該詞最少出現幾次，才可以被當作是訓練資料
+workers = 8 #訓練的並行數量
+epochs = 8 #訓練的迭代次數
+batch_words = 20 #每次給予多少詞彙量訓練
 
-workers = 6 #訓練的並行數量
-epochs = 5 #訓練的迭代次數
-
-if count>1000:
-   vector_size =100
-   min_count = 10
-   batch_words =1000
-else:
-   vector_size = round(count/3) #轉成向量的維度，維度太小會無法有效表達詞與詞的關係，維度太大會使關係太稀疏而難以找出規則
-   min_count = round(count/10) #該詞最少出現幾次，才可以被當作是訓練資料
-   batch_words = round(count/3) #每次給予多少詞彙量訓練
 
 
 #統計每篇文章字頻
 for file in files: #遍歷資料夾
     if not os.path.isdir(file): #判斷是否是資料夾,不是資料夾才打開
-        if counts==count:
-            break
-        else:
+            if counts==count:
+                break
+            else:    
                 file_path=folder_path+"/"+file
                 nm = os.path.splitext(file_path)
                 try:
@@ -71,21 +64,13 @@ for file in files: #遍歷資料夾
                         for w in Awords:     
                             if w in stopword: continue
                             else:
-                                seq = difflib.SequenceMatcher(None,key,w)
-                                ratio=seq.ratio()
-                                if ratio>=0.75:
-                                    if w in SimilarKey: continue
-                                    else:
-                                        SimilarKey[w]=ratio
-                                    w=key
-                                #print('ratio:'+str(ratio)) 
                                 STR_nostopwords.append(w)
                         TOL_STR.append(STR_nostopwords)    
                         file.close()
                     else:
                          print(file_path+"檔案類型不符，此檔案不解析\n")
                          continue
-    counts=counts+1
+            counts=counts+1              
 model = word2vec.Word2Vec(
                                     TOL_STR,
                                     min_count=min_count,
@@ -96,15 +81,13 @@ model = word2vec.Word2Vec(
                                     sg=sg,
                                     seed=seed,
                                     batch_words=batch_words
-                             )  
-print('stopword:'+str(len(stopword)))
-print('SimilarKey:')
-print(SimilarKey)
+                                )
+#print('stopword:'+str(len(stopword)))
+#print(stopword)
 model.save('word2vec.model')
 models = word2vec.Word2Vec.load('word2vec.model')
 #print(models.wv['endometriosis'].shape)
 #print(models.wv.most_similar(key))
-print('SG')
-for item in models.wv.similar_by_word(key, topn =top-1):
+for item in models.wv.similar_by_word(key, topn =top):
     print(item)
 
